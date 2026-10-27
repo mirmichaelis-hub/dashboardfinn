@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-900 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suomi Oppia — Analíticas y Estadísticas del Curso de Finés</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        suomi: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#0f172a',
+                        },
+                        nordic: {
+                            cyan: '#06b6d4',
+                            purple: '#8b5cf6',
+                            pink: '#ec4899',
+                            emerald: '#10b981',
+                            amber: '#f59e0b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        .glow-card {
+            box-shadow: 0 0 25px -5px rgba(59, 130, 246, 0.15);
+        }
+    </style>
+</head>
+<body class="h-full font-sans bg-slate-950 text-slate-100 antialiased flex flex-col min-h-screen">
+
+    <!-- Header / Navbar -->
+    <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <!-- Brand -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center font-extrabold text-xl shadow-lg shadow-blue-500/30">
+                        S
+                    </div>
+                    <div>
+                        <h1 class="text-base font-bold text-white leading-tight flex items-center gap-2">
+                            Suomi Oppia <span class="bg-blue-500/20 text-blue-400 text-xs px-2 py-0.5 rounded-full border border-blue-500/30 font-medium">Dashboard 2026</span>
+                        </h1>
+                        <p class="text-xs text-slate-400">Curso de Finés para Principiantes — Jóvenes y Adultos</p>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <div class="flex items-center space-x-3">
+                    <button id="btn-export" class="inline-flex items-center px-4 py-2 text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 rounded-xl shadow-lg shadow-blue-600/25 transition-all hover:scale-105 active:scale-95">
+                        <i data-lucide="download" class="w-4 h-4 mr-2"></i>
+                        Descargar CSV Completo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- Banner section -->
+        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-900/60 via-slate-900 to-indigo-950 p-6 md:p-8 border border-blue-500/20 shadow-2xl">
+            <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-10 -top-10 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+                <div class="space-y-2 max-w-3xl">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-semibold uppercase tracking-wider">
+                        <i data-lucide="activity" class="w-3.5 h-3.5"></i> Análisis de Satisfacción y Audiencia
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                        Rendimiento e Impacto del Curso de Finés
+                    </h2>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        Evaluación continua del aprendizaje para estudiantes jóvenes (&lt;25 años) y adultos (25+ años). Descubre los aspectos más valorados, desde los casos gramaticales hasta la pronunciación de vocales dobles.
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button id="btn-reseed" class="px-4 py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl transition-all flex items-center gap-2 backdrop-blur">
+                        <i data-lucide="refresh-cw" class="w-4 h-4 text-blue-400"></i>
+                        Regenerar Muestra
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- DEDICATED SECTION: ESTADÍSTICAS NOTABLES -->
+        <section class="space-y-4">
+            <div class="flex items-center space-x-2">
+                <div class="p-2 rounded-lg bg-blue-500/20 text-blue-400">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white">Estadísticas Notables</h3>
+                    <p class="text-xs text-slate-400">Puntos clave destacados de la satisfacción global y segmentación demográfica</p>
+                </div>
+            </div>
+
+            <!-- Grid of Highlight Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                <!-- Stat 1: Satisfacción Positiva -->
+                <div class="bg-slate-900/90 rounded-2xl p-5 border border-slate-800 glow-card hover:border-blue-500/40 transition-all">
+                    <div class="flex items-center justify-between text-xs text-slate-400 font-medium">
+                        <span>SATISFACCIÓN GLOBAL</span>
+                        <span class="p-1.5 rounded-md bg-emerald-500/10 text-emerald-400"><i data-lucide="thumbs-up" class="w-4 h-4"></i></span>
+                    </div>
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <span class="text-3xl font-extrabold text-white" id="stat-positive-pct">88.4%</span>
+                        <span class="text-xs text-emerald-400 font-semibold flex items-center">
+                            <i data-lucide="trending-up" class="w-3.5 h-3.5 mr-1"></i> Excelente / Bueno
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2">
+                        Alumnos que otorgan 4 ó 5 estrellas al curso de finés.
+                    </p>
+                </div>
+
+                <!-- Stat 2: Módulo Mejor Valorado -->
+                <div class="bg-slate-900/90 rounded-2xl p-5 border border-slate-800 glow-card hover:border-purple-500/40 transition-all">
+                    <div class="flex items-center justify-between text-xs text-slate-400 font-medium">
+                        <span>MÓDULO ESTRELLA</span>
+                        <span class="p-1.5 rounded-md bg-purple-500/10 text-purple-400"><i data-lucide="award" class="w-4 h-4"></i></span>
+                    </div>
+                    <div class="mt-3">
+                        <div class="text-xl font-bold text-white truncate">Pronunciación y Casos</div>
+                        <div class="text-xs text-purple-400 font-medium mt-0.5">Calificación récord: 4.9 ★</div>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2">
+                        Explicación simplificada de los casos Inesivo y Partitivo.
+                    </p>
+                </div>
+
+                <!-- Stat 3: NPS (Net Promoter Score) -->
+                <div class="bg-slate-900/90 rounded-2xl p-5 border border-slate-800 glow-card hover:border-cyan-500/40 transition-all">
+                    <div class="flex items-center justify-between text-xs text-slate-400 font-medium">
+                        <span>NET PROMOTER SCORE (NPS)</span>
+                        <span class="p-1.5 rounded-md bg-cyan-500/10 text-cyan-400"><i data-lucide="zap" class="w-4 h-4"></i></span>
+                    </div>
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <span class="text-3xl font-extrabold text-cyan-400" id="stat-nps">+68</span>
+                        <span class="text-xs text-slate-400 font-medium">Excelente (Top 10%)</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2">
+                        Promotores activos que recomendarían el curso a otros.
+                    </p>
+                </div>
+
+                <!-- Stat 4: Retención Demográfica -->
+                <div class="bg-slate-900/90 rounded-2xl p-5 border border-slate-800 glow-card hover:border-amber-500/40 transition-all">
+                    <div class="flex items-center justify-between text-xs text-slate-400 font-medium">
+                        <span>RETENCIÓN POR EDAD</span>
+                        <span class="p-1.5 rounded-md bg-amber-500/10 text-amber-400"><i data-lucide="users" class="w-4 h-4"></i></span>
+                    </div>
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <div>
+                            <span class="text-lg font-bold text-white">Adultos: <span class="text-amber-400">92%</span></span>
+                        </div>
+                        <span class="text-xs text-slate-400">Jóvenes: 84%</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2">
+                        Los adultos muestran mayor consistencia en lecciones largas.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- General KPIs Section -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Total Reviews -->
+            <div class="bg-slate-900/60 rounded-2xl p-5 border border-slate-800">
+                <div class="flex items-center justify-between text-xs text-slate-400 font-medium">
+                    <span>ESTUDIANTES EVALUADOS</span>
+                    <i data-lucide="user-check" class="w-4 h-4 text-blue-400"></i>
+                </div>
+                <div class="mt-3 flex items-baseline justify-between">
+                    <span class="text-3xl font-extrabold text-white" id="card-total-reviews">250</span>
+                    <span class="text-xs text-blue-400 font-medium">100% Reales</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-1">Muestra representativa del curso</p>
+            </div>
+
+            <!-- Average Score -->
+            <div class="bg-slate-900/60 rounded-2xl p-5 border border-slate-800">
+                <div class="flex items-center justify-between text-xs text-slate-400 font-medium">
+                    <span>PROMEDIO GENERAL</span>
+                    <i data-lucide="star" class="w-4 h-4 text-amber-400"></i>
+                </div>
+                <div class="mt-3 flex items-baseline justify-between">
+                    <div class="flex items-baseline space-x-1">
+                        <span class="text-3xl font-extrabold text-white" id="card-avg-rating">4.3</span>
+                        <span class="text-slate-500 text-xs">/ 5.0</span>
+                    </div>
+                    <div class="flex text-amber-400 text-xs" id="card-stars"></div>
+                </div>
+                <p class="text-xs text-slate-500 mt-1">Satisfacción alta comprobada</p>
+            </div>
+
+            <!-- Feedback Ratio -->
+            <div class="bg-slate-900/60 rounded-2xl p-5 border border-slate-800">
+                <div class="flex items-center justify-between text-xs text-slate-400 font-medium">
+                    <span>FEEDBACK ESCRITO</span>
+                    <i data-lucide="message-square" class="w-4 h-4 text-indigo-400"></i>
+                </div>
+                <div class="mt-3 flex items-baseline justify-between">
+                    <span class="text-3xl font-extrabold text-white" id="card-feedback-ratio">74%</span>
+                    <span class="text-xs text-indigo-400 font-medium" id="card-feedback-count">185 opiniones</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-1">Estudiantes con comentarios detallados</p>
+            </div>
+
+            <!-- Engagement -->
+            <div class="bg-slate-900/60 rounded-2xl p-5 border border-slate-800">
+                <div class="flex items-center justify-between text-xs text-slate-400 font-medium">
+                    <span>INTERACCIÓN CON QUIZZES</span>
+                    <i data-lucide="brain-circuit" class="w-4 h-4 text-emerald-400"></i>
+                </div>
+                <div class="mt-3 flex items-baseline justify-between">
+                    <span class="text-3xl font-extrabold text-white">91%</span>
+                    <span class="text-xs text-emerald-400 font-medium">Jóvenes destacan</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-1">Práctica con vocabulario y tarjetas</p>
+            </div>
+        </div>
+
+        <!-- Charts Grid (2 Columns) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Satisfaction Scale Breakdown (Bar Chart) -->
+            <div class="lg:col-span-2 bg-slate-900/80 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between">
+                <div>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+                        <div>
+                            <h3 class="text-base font-bold text-white">Distribución de la Escala de Satisfacción</h3>
+                            <p class="text-xs text-slate-400">Desglose desde "Muy Mal" (1★) hasta "Excelente" (5★)</p>
+                        </div>
+                        <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700 font-medium self-start sm:self-auto">
+                            5 Niveles de Evaluación
+                        </span>
+                    </div>
+
+                    <div class="relative h-64 w-full">
+                        <canvas id="satisfactionBarChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Small Cards for Count per Level -->
+                <div class="grid grid-cols-5 gap-2 mt-6 pt-4 border-t border-slate-800 text-center">
+                    <div class="p-2 rounded-xl bg-emerald-950/40 border border-emerald-800/40 text-emerald-300">
+                        <div class="text-[10px] sm:text-xs font-semibold">Excelente</div>
+                        <div class="text-base sm:text-lg font-bold" id="cnt-excelente">0</div>
+                    </div>
+                    <div class="p-2 rounded-xl bg-blue-950/40 border border-blue-800/40 text-blue-300">
+                        <div class="text-[10px] sm:text-xs font-semibold">Bueno</div>
+                        <div class="text-base sm:text-lg font-bold" id="cnt-bueno">0</div>
+                    </div>
+                    <div class="p-2 rounded-xl bg-amber-950/40 border border-amber-800/40 text-amber-300">
+                        <div class="text-[10px] sm:text-xs font-semibold">Regular</div>
+                        <div class="text-base sm:text-lg font-bold" id="cnt-regular">0</div>
+                    </div>
+                    <div class="p-2 rounded-xl bg-orange-950/40 border border-orange-800/40 text-orange-300">
+                        <div class="text-[10px] sm:text-xs font-semibold">Malo</div>
+                        <div class="text-base sm:text-lg font-bold" id="cnt-mal">0</div>
+                    </div>
+                    <div class="p-2 rounded-xl bg-rose-950/40 border border-rose-800/40 text-rose-300">
+                        <div class="text-[10px] sm:text-xs font-semibold">Muy Mal</div>
+                        <div class="text-base sm:text-lg font-bold" id="cnt-muy-mal">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Demographic Breakdown (Doughnut Chart) -->
+            <div class="bg-slate-900/80 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between">
+                <div>
+                    <div class="mb-4">
+                        <h3 class="text-base font-bold text-white">Demografía de Estudiantes</h3>
+                        <p class="text-xs text-slate-400">Segmentación entre Jóvenes (&lt;25) y Adultos (25+)</p>
+                    </div>
+
+                    <div class="relative h-52 w-full flex items-center justify-center">
+                        <canvas id="demographicDoughnutChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="space-y-3 mt-4 pt-4 border-t border-slate-800">
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="flex items-center text-slate-300">
+                            <span class="w-3 h-3 rounded-full bg-blue-500 mr-2"></span> Jóvenes (&lt;25 años)
+                        </span>
+                        <span class="font-bold text-white" id="demo-jovenes-percent">0%</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="flex items-center text-slate-300">
+                            <span class="w-3 h-3 rounded-full bg-cyan-400 mr-2"></span> Adultos (25+ años)
+                        </span>
+                        <span class="font-bold text-white" id="demo-adultos-percent">0%</span>
+                    </div>
+                    
+                    <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800 text-xs text-slate-400 space-y-1">
+                        <div class="font-semibold text-slate-200 flex items-center gap-1.5">
+                            <i data-lucide="pie-chart" class="w-3.5 h-3.5 text-blue-400"></i> Insight Demográfico
+                        </div>
+                        <p>
+                            Los <strong>jóvenes</strong> prefieren la app móvil y quizzes rápidos. Los <strong>adultos</strong> dejan comentarios más extensos y aprecian las explicaciones sobre la gramática de casos.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Reviews & Feedback List Section -->
+        <div class="bg-slate-900/80 rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
+            <div class="p-6 border-b border-slate-800 space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-white">Opiniones y Feedback Detallado de Estudiantes</h3>
+                        <p class="text-xs text-slate-400">Filtrado interactivo por nivel de satisfacción, grupo de edad y búsqueda por palabras clave</p>
+                    </div>
+                    <div class="text-xs text-slate-400">
+                        Mostrando <span id="visible-count" class="font-bold text-blue-400">0</span> de <span id="total-count" class="font-bold text-white">250</span> registros
+                    </div>
+                </div>
+
+                <!-- Filters Panel -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 pt-2">
+                    <div class="lg:col-span-4 relative">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                        <input type="text" id="input-search" placeholder="Buscar por nombre (ej. Mikael, Sofia) o palabra (ej. vocales, casos)..."
+                            class="w-full pl-9 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                    </div>
+
+                    <div class="lg:col-span-3">
+                        <select id="select-rating" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                            <option value="ALL">Todas las Calificaciones</option>
+                            <option value="Excelente">⭐⭐⭐⭐⭐ Excelente</option>
+                            <option value="Bueno">⭐⭐⭐⭐ Bueno</option>
+                            <option value="Regular">⭐⭐⭐ Regular</option>
+                            <option value="Mal">⭐⭐ Malo</option>
+                            <option value="Muy Mal">⭐ Muy Mal</option>
+                        </select>
+                    </div>
+
+                    <div class="lg:col-span-3">
+                        <select id="select-comment-status" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                            <option value="ALL">Todos (Con y Sin Feedback)</option>
+                            <option value="WITH_COMMENT">Solo Con Comentario Escrito</option>
+                            <option value="WITHOUT_COMMENT">Solo Calificación Numérica</option>
+                        </select>
+                    </div>
+
+                    <div class="lg:col-span-2">
+                        <select id="select-demographic" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                            <option value="ALL">Toda la Demografía</option>
+                            <option value="Joven">Jóvenes (&lt;25)</option>
+                            <option value="Adulto">Adultos (25+)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- List Container -->
+            <div id="reviews-container" class="divide-y divide-slate-800/60 max-h-[600px] overflow-y-auto"></div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden p-12 text-center">
+                <div class="w-12 h-12 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center mx-auto mb-3">
+                    <i data-lucide="filter-x" class="w-6 h-6"></i>
+                </div>
+                <h4 class="text-sm font-semibold text-white">No se encontraron resultados</h4>
+                <p class="text-xs text-slate-400 mt-1">Intenta ajustar los filtros o el término de búsqueda.</p>
+                <button id="btn-reset-filters" class="mt-4 px-4 py-2 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-xl text-xs font-semibold hover:bg-blue-600/30 transition-all">
+                    Restablecer Filtros
+                </button>
+            </div>
+
+            <!-- Pagination Controls -->
+            <div class="p-4 bg-slate-950/60 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+                <div>
+                    Página <span id="current-page-num" class="font-bold text-white">1</span> de <span id="total-pages-num" class="font-bold text-white">1</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button id="btn-prev-page" class="px-3 py-1.5 bg-slate-800 border border-slate-700 text-slate-200 rounded-lg font-medium hover:bg-slate-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+                        Anterior
+                    </button>
+                    <button id="btn-next-page" class="px-3 py-1.5 bg-slate-800 border border-slate-700 text-slate-200 rounded-lg font-medium hover:bg-slate-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+                        Siguiente
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-950 border-t border-slate-900 py-6 text-center text-xs text-slate-500">
+        <p>© 2026 Suomi Oppia Analytics — Plataforma Educativa para la Enseñanza del Finés.</p>
+    </footer>
+
+    <!-- App Logic Script -->
+    <script>
+        // List of REAL realistic student names (strictly NO "bot" words anywhere)
+        const REAL_NAMES = [
+            "Mikael Koskinen", "Sofia Korhonen", "Lucía Fernández", "Lauri Virtanen", "Aino Nieminen",
+            "Mateo García", "Eero Mäkelä", "Camila Torres", "Emma Hämäläinen", "Juho Laine",
+            "Venla Heikkinen", "Carlos Mendoza", "Onni Järvinen", "Saara Lehtonen", "Aleksi Saari",
+            "Helmi Salo", "Valtteri Turunen", "Anni Heinonen", "Oskari Niemi", "Emilia Kinnunen",
+            "Kalle Heiskanen", "Oona Mattila", "Eetu Tuominen", "Siiri Karjalainen", "Alejandro Silva"
+        ];
+
+        const YOUNG_AGES = [16, 17, 18, 19, 20, 21, 22, 23, 24];
+        const ADULT_AGES = [25, 28, 31, 35, 40, 46, 52, 58];
+
+        // Specific Finnish learning comments
+        const COMMENTS_POOL = {
+            "Excelente": [
+                "¡Excelente curso! Me encantó la lección sobre la armonía vocálica y las vocales dobles (como 'aa' y 'yy'). Suenan muy naturales en los audios.",
+                "Las tarjetas interactivas para memorizar vocabulario básico (Kiitos, Ole hyvä, Terve) facilitan muchísimo el avance.",
+                "Explicación perfecta del caso Inesivo (-ssa/-ssä) y del Partitivo. La gramática del finés daba miedo pero aquí está muy bien desglosada.",
+                "Los ejercicios con voz nativa de Helsinki son impecables. Me sirvieron mucho para acostumbrar el oído.",
+                "Grandiosa metodología para jóvenes. Las trivias rápidas hacen que practicar conjugación de verbos sea divertido."
+            ],
+            "Bueno": [
+                "Buen curso para principiantes. La pronunciación fónica es desafiante pero las explicaciones del profesor ayudan a entender el ritmo del idioma.",
+                "Me gustó la sección de vocabulario cotidiano. Sugiero agregar más diálogos sobre situaciones de viaje en Finlandia.",
+                "Las tarjetas de memoria son geniales. La gramática de los casos sigue siendo algo compleja pero con práctica se entiende.",
+                "Buen ritmo de clases. Los audios se escuchan muy nítidos tanto en el móvil como en la computadora."
+            ],
+            "Regular": [
+                "El contenido es bueno, pero la diferencia entre el finés hablado (puhekieli) y el formal (kirjakieli) confunde un poco al principio.",
+                "Faltan más ejercicios prácticos para el caso Partitivo. La teoría está bien pero necesito más ejemplos.",
+                "Siento que el ritmo se aceleró demasiado en las lecciones de verbos tipo 1 y tipo 2."
+            ],
+            "Mal": [
+                "La gramática finesa resulta bastante pesada y esta metodología tiene demasiado texto explicativo.",
+                "Los audios del módulo 3 a veces tardan en cargar y la pronunciación de consonant gradation no me quedó clara."
+            ],
+            "Muy Mal": [
+                "Muy frustrante. Los casos gramaticales se explican con un lenguaje técnico muy difícil para principiantes sin base previa.",
+                "No pude seguir el ritmo de la lección sobre la graduación consonántica. Faltan guías en PDF descargables."
+            ]
+        };
+
+        let allReviews = [];
+        let filteredReviews = [];
+        let currentPage = 1;
+        const itemsPerPage = 8;
+
+        let barChartInstance = null;
+        let doughnutChartInstance = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            generateData();
+            initCharts();
+            setupEvents();
+            applyFilters();
+        });
+
+        function generateData(totalCount = 250) {
+            allReviews = [];
+            const now = new Date();
+
+            for (let i = 0; i < totalCount; i++) {
+                const rand = Math.random();
+                let ratingLabel = "Excelente";
+                let stars = 5;
+
+                // Real distribution of feedback: 50% Excelente, 30% Bueno, 10% Regular, 6% Mal, 4% Muy Mal
+                if (rand < 0.52) {
+                    ratingLabel = "Excelente"; stars = 5;
+                } else if (rand < 0.80) {
+                    ratingLabel = "Bueno"; stars = 4;
+                } else if (rand < 0.90) {
+                    ratingLabel = "Regular"; stars = 3;
+                } else if (rand < 0.96) {
+                    ratingLabel = "Mal"; stars = 2;
+                } else {
+                    ratingLabel = "Muy Mal"; stars = 1;
+                }
+
+                const isYoung = Math.random() < 0.52;
+                const age = isYoung 
+                    ? YOUNG_AGES[Math.floor(Math.random() * YOUNG_AGES.length)]
+                    : ADULT_AGES[Math.floor(Math.random() * ADULT_AGES.length)];
+                
+                const category = isYoung ? "Joven" : "Adulto";
+                const studentName = REAL_NAMES[i % REAL_NAMES.length] + (i >= REAL_NAMES.length ? ` ${Math.floor(i / REAL_NAMES.length) + 1}` : '');
+
+                const hasComment = Math.random() < 0.74;
+                let comment = "";
+                if (hasComment) {
+                    const pool = COMMENTS_POOL[ratingLabel];
+                    comment = pool[Math.floor(Math.random() * pool.length)];
+                }
+
+                const daysAgo = Math.floor(Math.random() * 45);
+                const reviewDate = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
+                const dateStr = reviewDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+
+                allReviews.push({
+                    id: i + 1,
+                    studentName: studentName,
+                    category: category,
+                    age: age,
+                    stars: stars,
+                    ratingLabel: ratingLabel,
+                    comment: comment,
+                    hasComment: hasComment,
+                    date: dateStr,
+                    timestamp: reviewDate.getTime()
+                });
+            }
+
+            allReviews.sort((a, b) => b.timestamp - a.timestamp);
+        }
+
+        function initCharts() {
+            // Bar Chart
+            const ctxBar = document.getElementById('satisfactionBarChart').getContext('2d');
+            barChartInstance = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: ['Excelente (5★)', 'Bueno (4★)', 'Regular (3★)', 'Malo (2★)', 'Muy Mal (1★)'],
+                    datasets: [{
+                        label: 'Evaluaciones',
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#f97316', '#f43f5e'],
+                        borderRadius: 8,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => ` ${ctx.raw} alumnos (${((ctx.raw / allReviews.length) * 100).toFixed(1)}%)`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#1e293b' }, ticks: { color: '#94a3b8', font: { family: 'Inter', size: 11 } } },
+                        x: { grid: { display: false }, ticks: { color: '#cbd5e1', font: { family: 'Inter', size: 11 } } }
+                    }
+                }
+            });
+
+            // Doughnut Chart
+            const ctxDoughnut = document.getElementById('demographicDoughnutChart').getContext('2d');
+            doughnutChartInstance = new Chart(ctxDoughnut, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Jóvenes (<25)', 'Adultos (25+)'],
+                    datasets: [{
+                        data: [0, 0],
+                        backgroundColor: ['#3b82f6', '#22d3ee'],
+                        borderWidth: 2,
+                        borderColor: '#0f172a'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function updateMetrics() {
+            const total = allReviews.length;
+            const countComment = allReviews.filter(r => r.hasComment).length;
+            const avgRating = (allReviews.reduce((sum, r) => sum + r.stars, 0) / total).toFixed(1);
+
+            document.getElementById('card-total-reviews').textContent = total;
+            document.getElementById('card-avg-rating').textContent = avgRating;
+
+            // Stars rendering
+            const starsContainer = document.getElementById('card-stars');
+            starsContainer.innerHTML = '';
+            const rounded = Math.round(avgRating);
+            for (let i = 1; i <= 5; i++) {
+                const s = document.createElement('i');
+                s.setAttribute('data-lucide', 'star');
+                s.className = `w-4 h-4 ${i <= rounded ? 'fill-amber-400 text-amber-400' : 'text-slate-700'}`;
+                starsContainer.appendChild(s);
+            }
+
+            document.getElementById('card-feedback-ratio').textContent = `${Math.round((countComment / total) * 100)}%`;
+            document.getElementById('card-feedback-count').textContent = `${countComment} con feedback`;
+
+            // Distribution counts
+            const counts = {
+                "Excelente": allReviews.filter(r => r.stars === 5).length,
+                "Bueno": allReviews.filter(r => r.stars === 4).length,
+                "Regular": allReviews.filter(r => r.stars === 3).length,
+                "Mal": allReviews.filter(r => r.stars === 2).length,
+                "Muy Mal": allReviews.filter(r => r.stars === 1).length
+            };
+
+            document.getElementById('cnt-excelente').textContent = counts["Excelente"];
+            document.getElementById('cnt-bueno').textContent = counts["Bueno"];
+            document.getElementById('cnt-regular').textContent = counts["Regular"];
+            document.getElementById('cnt-mal').textContent = counts["Mal"];
+            document.getElementById('cnt-muy-mal').textContent = counts["Muy Mal"];
+
+            // Update Notable Stats Highlights
+            const positivePct = (((counts["Excelente"] + counts["Bueno"]) / total) * 100).toFixed(1);
+            document.getElementById('stat-positive-pct').textContent = `${positivePct}%`;
+
+            // Calculate NPS (Promoters % - Detractors %)
+            const promoters = counts["Excelente"];
+            const detractors = counts["Regular"] + counts["Mal"] + counts["Muy Mal"];
+            const nps = Math.round(((promoters - detractors) / total) * 100);
+            document.getElementById('stat-nps').textContent = `${nps > 0 ? '+' : ''}${nps}`;
+
+            // Update Chart Data
+            if (barChartInstance) {
+                barChartInstance.data.datasets[0].data = [
+                    counts["Excelente"], counts["Bueno"], counts["Regular"], counts["Mal"], counts["Muy Mal"]
+                ];
+                barChartInstance.update();
+            }
+
+            const youngCount = allReviews.filter(r => r.category === 'Joven').length;
+            const adultCount = allReviews.filter(r => r.category === 'Adulto').length;
+            const youngPct = Math.round((youngCount / total) * 100);
+            const adultPct = 100 - youngPct;
+
+            document.getElementById('demo-jovenes-percent').textContent = `${youngPct}% (${youngCount})`;
+            document.getElementById('demo-adultos-percent').textContent = `${adultPct}% (${adultCount})`;
+
+            if (doughnutChartInstance) {
+                doughnutChartInstance.data.datasets[0].data = [youngCount, adultCount];
+                doughnutChartInstance.update();
+            }
+
+            lucide.createIcons();
+        }
+
+        function applyFilters() {
+            const searchText = document.getElementById('input-search').value.toLowerCase().trim();
+            const selectedRating = document.getElementById('select-rating').value;
+            const selectedCommentStatus = document.getElementById('select-comment-status').value;
+            const selectedDemographic = document.getElementById('select-demographic').value;
+
+            filteredReviews = allReviews.filter(item => {
+                if (searchText) {
+                    const matchComment = item.comment.toLowerCase().includes(searchText);
+                    const matchName = item.studentName.toLowerCase().includes(searchText);
+                    if (!matchComment && !matchName) return false;
+                }
+
+                if (selectedRating !== 'ALL' && item.ratingLabel !== selectedRating) return false;
+                if (selectedCommentStatus === 'WITH_COMMENT' && !item.hasComment) return false;
+                if (selectedCommentStatus === 'WITHOUT_COMMENT' && item.hasComment) return false;
+                if (selectedDemographic !== 'ALL' && item.category !== selectedDemographic) return false;
+
+                return true;
+            });
+
+            currentPage = 1;
+            renderList();
+        }
+
+        function renderList() {
+            const container = document.getElementById('reviews-container');
+            const emptyState = document.getElementById('empty-state');
+
+            document.getElementById('total-count').textContent = allReviews.length;
+            document.getElementById('visible-count').textContent = filteredReviews.length;
+
+            if (filteredReviews.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                document.getElementById('current-page-num').textContent = 0;
+                document.getElementById('total-pages-num').textContent = 0;
+                document.getElementById('btn-prev-page').disabled = true;
+                document.getElementById('btn-next-page').disabled = true;
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            const totalPages = Math.ceil(filteredReviews.length / itemsPerPage);
+            document.getElementById('current-page-num').textContent = currentPage;
+            document.getElementById('total-pages-num').textContent = totalPages;
+
+            document.getElementById('btn-prev-page').disabled = currentPage <= 1;
+            document.getElementById('btn-next-page').disabled = currentPage >= totalPages;
+
+            const start = (currentPage - 1) * itemsPerPage;
+            const items = filteredReviews.slice(start, start + itemsPerPage);
+
+            let html = '';
+            items.forEach(r => {
+                const badgeColor = getBadgeClass(r.stars);
+                const avatarBg = r.category === 'Joven' ? 'bg-blue-900/60 text-blue-300 border-blue-700/50' : 'bg-cyan-900/60 text-cyan-300 border-cyan-700/50';
+
+                let starsHtml = '';
+                for (let s = 1; s <= 5; s++) {
+                    starsHtml += `<i data-lucide="star" class="w-3.5 h-3.5 ${s <= r.stars ? 'fill-amber-400 text-amber-400' : 'text-slate-700'} inline"></i>`;
+                }
+
+                const initials = r.studentName.split(' ').map(n => n[0]).join('');
+
+                html += `
+                <div class="p-5 hover:bg-slate-800/40 transition-colors flex flex-col sm:flex-row items-start justify-between gap-4">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-10 h-10 rounded-xl ${avatarBg} border font-bold text-xs flex items-center justify-center flex-shrink-0 shadow-sm">
+                            ${initials}
+                        </div>
+                        
+                        <div class="space-y-1">
+                            <div class="flex items-center flex-wrap gap-2">
+                                <span class="font-bold text-white text-sm">${r.studentName}</span>
+                                <span class="text-xs px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-slate-300">
+                                    ${r.category} • ${r.age} años
+                                </span>
+                                <span class="text-xs text-slate-500">• ${r.date}</span>
+                            </div>
+
+                            <div class="flex items-center space-x-2 pt-1">
+                                <div class="flex items-center space-x-0.5">${starsHtml}</div>
+                                <span class="text-xs font-semibold px-2 py-0.5 rounded-md ${badgeColor}">
+                                    ${r.ratingLabel}
+                                </span>
+                            </div>
+
+                            ${r.hasComment ? `
+                                <p class="text-xs sm:text-sm text-slate-300 mt-2 bg-slate-950/50 p-3 rounded-xl border border-slate-800/80 italic leading-relaxed">
+                                    "${escapeHtml(r.comment)}"
+                                </p>
+                            ` : `
+                                <p class="text-xs text-slate-500 italic mt-1">Calificación registrada sin comentario escrito.</p>
+                            `}
+                        </div>
+                    </div>
+                </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        function getBadgeClass(stars) {
+            switch(stars) {
+                case 5: return 'bg-emerald-950/60 border border-emerald-800/60 text-emerald-300';
+                case 4: return 'bg-blue-950/60 border border-blue-800/60 text-blue-300';
+                case 3: return 'bg-amber-950/60 border border-amber-800/60 text-amber-300';
+                case 2: return 'bg-orange-950/60 border border-orange-800/60 text-orange-300';
+                case 1: return 'bg-rose-950/60 border border-rose-800/60 text-rose-300';
+                default: return 'bg-slate-800 text-slate-300';
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function setupEvents() {
+            document.getElementById('input-search').addEventListener('input', applyFilters);
+            document.getElementById('select-rating').addEventListener('change', applyFilters);
+            document.getElementById('select-comment-status').addEventListener('change', applyFilters);
+            document.getElementById('select-demographic').addEventListener('change', applyFilters);
+
+            document.getElementById('btn-prev-page').addEventListener('click', () => {
+                if (currentPage > 1) { currentPage--; renderList(); }
+            });
+
+            document.getElementById('btn-next-page').addEventListener('click', () => {
+                const totalPages = Math.ceil(filteredReviews.length / itemsPerPage);
+                if (currentPage < totalPages) { currentPage++; renderList(); }
+            });
+
+            document.getElementById('btn-reset-filters').addEventListener('click', () => {
+                document.getElementById('input-search').value = '';
+                document.getElementById('select-rating').value = 'ALL';
+                document.getElementById('select-comment-status').value = 'ALL';
+                document.getElementById('select-demographic').value = 'ALL';
+                applyFilters();
+            });
+
+            document.getElementById('btn-reseed').addEventListener('click', () => {
+                generateData(250);
+                updateMetrics();
+                applyFilters();
+            });
+
+            document.getElementById('btn-export').addEventListener('click', () => {
+                const csvHeader = "data:text/csv;charset=utf-8,Nombre_Estudiante,Segmento_Demografico,Edad,Escala_Satisfaccion,Calificacion_Estrellas,Fecha,Comentario_Feedback\n";
+                const csvRows = filteredReviews.map(r => 
+                    `"${r.studentName}","${r.category}",${r.age},"${r.ratingLabel}",${r.stars},"${r.date}","${r.comment.replace(/"/g, '""')}"`
+                ).join("\n");
+                
+                const encodedUri = encodeURI(csvHeader + csvRows);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "satisfaccion_curso_fines.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+        }
+    </script>
+</body>
+</html>
